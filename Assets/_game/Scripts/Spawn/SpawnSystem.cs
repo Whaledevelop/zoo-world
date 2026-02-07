@@ -49,7 +49,7 @@ namespace ZooWorld.Systems
 
         private void SpawnAnimal()
         {
-            var definition = _animalSettingsTable.Definitions[Random.Range(0, _animalSettingsTable.Definitions.Count)];
+            var definition = _animalSettingsTable.Animals[Random.Range(0, _animalSettingsTable.Animals.Count)];
             var spawnPosition = GetRandomPosition(_zooWorldSettings.WorldBounds);
             var model = new AnimalModel(++_nextId, definition, spawnPosition);
             var view = Object.Instantiate(definition.Prefab, spawnPosition, Quaternion.identity, _worldRootView.Root);

@@ -4,11 +4,10 @@ using UnityEngine;
 
 namespace ZooWorld.Settings
 {
-    [CreateAssetMenu(fileName = "AnimalCatalogSettings", menuName = "ZooWorld/Settings/Animal Catalog")]
+    [CreateAssetMenu(fileName = "AnimalSettingsTable", menuName = "ZooWorld/Settings/AnimalSettingsTable")]
     public sealed class AnimalSettingsTable : ScriptableObject
     {
         [field: SerializeField]
-        [BoxGroup("Catalog")]
-        public List<AnimalSettings> Definitions { get; private set; }
+        public List<AnimalSettings> Animals { get; private set; }
     }
 }

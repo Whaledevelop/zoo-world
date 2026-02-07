@@ -5,7 +5,7 @@ using ZooWorld.Views;
 
 namespace ZooWorld.Settings
 {
-    [CreateAssetMenu(fileName = "AnimalDefinition", menuName = "ZooWorld/Settings/Animal Definition")]
+    [CreateAssetMenu(fileName = "AnimalSettings", menuName = "ZooWorld/Settings/AnimalSettings")]
     public sealed class AnimalSettings : ScriptableObject
     {
         [field: SerializeField]
