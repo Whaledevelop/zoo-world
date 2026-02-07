@@ -1,0 +1,96 @@
+﻿using Sirenix.OdinInspector;
+using UnityEngine;
+using VContainer;
+using Whaledevelop.VContainer;
+using ZooWorld.Models;
+using ZooWorld.Settings;
+using ZooWorld.Views;
+
+namespace ZooWorld.Systems
+{
+    public sealed class ZooLifetimeScope : GameLifetimeScopeBase<ZooEntryPoint>
+    {
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private ZooWorldSettings _zooWorldSettings;
+
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private AnimalSettingsTable _animalSettingsTable;
+
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private PredatorEatSettings _predatorEatSettings;
+
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private UISettings _uiSettings;
+
+        [SerializeField]
+        [BoxGroup("Views")]
+        private ZooUIView _uiView;
+
+        [SerializeField]
+        [BoxGroup("Views")]
+        private ZooWorldRootView _worldRootView;
+
+        [SerializeField]
+        [BoxGroup("Views")]
+        private CameraView _cameraView;
+
+        protected override void Configure(IContainerBuilder builder)
+        {
+            base.Configure(builder);
+
+            builder.RegisterInstance(_zooWorldSettings);
+            builder.RegisterInstance(_animalSettingsTable);
+            builder.RegisterInstance(_predatorEatSettings);
+            builder.RegisterInstance(_uiSettings);
+            builder.RegisterInstance(_uiView);
+            builder.RegisterInstance(_worldRootView);
+            builder.RegisterInstance(_cameraView);
+
+            builder.Register<AnimalsModel>(Lifetime.Singleton)
+                .As<IAnimalsModel>();
+
+            builder.Register<ICameraModel>(
+                    container => new CameraModel(
+                        _zooWorldSettings.WorldBounds,
+                        _zooWorldSettings.CameraPosition,
+                        _zooWorldSettings.CameraRotation,
+                        _zooWorldSettings.CameraOrthographicSize),
+                    Lifetime.Singleton)
+                .As<ICameraModel>();
+
+            builder.Register<SpawnSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+
+            builder.Register<MovementSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+
+            builder.Register<BoundsSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+
+            builder.Register<FoodChainSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+
+            builder.Register<UISystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+
+            builder.Register<CameraSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+        }
+    }
+}
