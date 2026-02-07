@@ -7,7 +7,7 @@ using VContainer;
 
 namespace Whaledevelop.States
 {
-    public abstract class StatesController<TStateCode> : InitializableAsync, IStatesController<TStateCode> where TStateCode : Enum
+    public abstract class StatesController<TStateCode> : AsyncLifetime, IStatesController<TStateCode> where TStateCode : Enum
     {
         private ReactiveProperty<TStateCode> _currentStateCode;
 

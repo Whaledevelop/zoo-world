@@ -1,6 +1,6 @@
 ﻿namespace Whaledevelop.Systems
 {
-    public interface IGameSystem : IInitializableAsync
+    public interface IGameSystem : ILifetime
     {
         
     }
