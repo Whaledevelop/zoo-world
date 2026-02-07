@@ -52,13 +52,31 @@ namespace ZooWorld.Systems
                 return;
             }
 
+            if (first.Group == AnimalGroup.Prey && second.Group == AnimalGroup.Prey)
+            {
+
+                return;
+            }
+
             if (first.Group == AnimalGroup.Predator && second.Group == AnimalGroup.Prey)
             {
                 _animalsModel.RegisterPredatorEat(first, second);
+
+                return;
             }
-            else if (second.Group == AnimalGroup.Predator && first.Group == AnimalGroup.Prey)
+
+            if (second.Group == AnimalGroup.Predator && first.Group == AnimalGroup.Prey)
             {
                 _animalsModel.RegisterPredatorEat(second, first);
+
+                return;
+            }
+
+            if (first.Group == AnimalGroup.Predator && second.Group == AnimalGroup.Predator)
+            {
+                var survivor = first.Id > second.Id ? first : second;
+                var eaten = survivor == first ? second : first;
+                _animalsModel.RegisterPredatorEat(survivor, eaten);
             }
         }
     }

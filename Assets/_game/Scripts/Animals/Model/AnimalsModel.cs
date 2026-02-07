@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using R3;
 using ZooWorld.Enums;
 using ZooWorld.Events;
@@ -16,6 +16,7 @@ namespace ZooWorld.Models
         private readonly ReadOnlyReactiveProperty<int> _deadPredatorCountReadOnly;
         private readonly Subject<IAnimalModel> _animalSpawned;
         private readonly Subject<IAnimalModel> _animalDied;
+        private readonly Subject<IAnimalModel> _animalRemoved;
         private readonly Subject<PredatorAteEvent> _predatorAte;
         private readonly Subject<AnimalCollisionEvent> _animalCollision;
 
@@ -30,6 +31,7 @@ namespace ZooWorld.Models
             _deadPredatorCountReadOnly = _deadPredatorCount.ToReadOnlyReactiveProperty();
             _animalSpawned = new Subject<IAnimalModel>();
             _animalDied = new Subject<IAnimalModel>();
+            _animalRemoved = new Subject<IAnimalModel>();
             _predatorAte = new Subject<PredatorAteEvent>();
             _animalCollision = new Subject<AnimalCollisionEvent>();
         }
@@ -40,6 +42,7 @@ namespace ZooWorld.Models
         public ReadOnlyReactiveProperty<int> DeadPredatorCount => _deadPredatorCountReadOnly;
         public Observable<IAnimalModel> OnAnimalSpawned => _animalSpawned;
         public Observable<IAnimalModel> OnAnimalDied => _animalDied;
+        public Observable<IAnimalModel> OnAnimalRemoved => _animalRemoved;
         public Observable<PredatorAteEvent> OnPredatorAte => _predatorAte;
         public Observable<AnimalCollisionEvent> OnAnimalCollision => _animalCollision;
 
@@ -53,6 +56,34 @@ namespace ZooWorld.Models
             }
 
             _animalSpawned.OnNext(model);
+        }
+
+        public bool TryGetAnimalById(int id, out IAnimalModel animal)
+        {
+            foreach (var model in _animals)
+            {
+                if (model.Id == id)
+                {
+                    animal = model;
+
+                    return true;
+                }
+            }
+
+            animal = null;
+
+            return false;
+        }
+
+        public void RemoveAnimal(IAnimalModel model)
+        {
+            if (!_animals.Remove(model))
+            {
+
+                return;
+            }
+
+            _animalRemoved.OnNext(model);
         }
 
         public void ReportCollision(IAnimalModel first, IAnimalModel second)

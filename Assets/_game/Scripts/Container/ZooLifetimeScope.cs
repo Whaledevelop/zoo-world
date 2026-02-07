@@ -52,6 +52,9 @@ namespace ZooWorld.Systems
 
             builder.Register<AnimalsModel>(Lifetime.Singleton)
                 .As<IAnimalsModel>();
+            
+            builder.Register<AnimalViewsRegistry>(Lifetime.Singleton)
+                .As<IAnimalViewsRegistry>();
 
             builder.Register<ICameraModel>(
                     container => new CameraModel(
@@ -82,6 +85,11 @@ namespace ZooWorld.Systems
                 .As<IAsyncInitializable>()
                 .As<IAsyncReleasable>();
 
+            builder.Register<AnimalDespawnSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+            
             builder.Register<UISystem>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IAsyncInitializable>()

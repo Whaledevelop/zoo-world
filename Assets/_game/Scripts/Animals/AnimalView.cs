@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using R3;
 using UnityEngine;
@@ -19,19 +19,20 @@ namespace ZooWorld.Views
         private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
         private IAnimalModel _model;
         private IAnimalsModel _animalsModel;
+        private IAnimalViewsRegistry _registry;
 
         public Rigidbody Rigidbody => _rigidbody;
         public Collider Collider => _collider;
         public IAnimalModel Model => _model;
 
-        private void OnEnable()
-        {
-            Registry[_rigidbody] = this;
-        }
-
         private void OnDisable()
         {
             Registry.Remove(_rigidbody);
+
+            if (_model != null && _registry != null)
+            {
+                _registry.Unregister(_model.Id);
+            }
 
             foreach (var subscription in _subscriptions)
             {
@@ -41,10 +42,13 @@ namespace ZooWorld.Views
             _subscriptions.Clear();
         }
 
-        public void Initialize(IAnimalModel model, IAnimalsModel animalsModel)
+        public void Initialize(IAnimalModel model, IAnimalsModel animalsModel, IAnimalViewsRegistry registry)
         {
             _model = model;
             _animalsModel = animalsModel;
+            _registry = registry;
+            Registry[_rigidbody] = this;
+            _registry.Register(_model.Id, this);
 
             _subscriptions.Add(_model.Position.Subscribe(position =>
             {

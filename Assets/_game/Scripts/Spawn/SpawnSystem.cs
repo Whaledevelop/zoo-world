@@ -14,6 +14,7 @@ namespace ZooWorld.Systems
         private readonly ZooWorldSettings _zooWorldSettings;
         private readonly AnimalSettingsTable _animalSettingsTable;
         private readonly IAnimalsModel _animalsModel;
+        private readonly IAnimalViewsRegistry _viewsRegistry;
         private readonly ZooWorldRootView _worldRootView;
         private int _nextId;
 
@@ -21,11 +22,13 @@ namespace ZooWorld.Systems
             ZooWorldSettings zooWorldSettings,
             AnimalSettingsTable animalSettingsTable,
             IAnimalsModel animalsModel,
+            IAnimalViewsRegistry viewsRegistry,
             ZooWorldRootView worldRootView)
         {
             _zooWorldSettings = zooWorldSettings;
             _animalSettingsTable = animalSettingsTable;
             _animalsModel = animalsModel;
+            _viewsRegistry = viewsRegistry;
             _worldRootView = worldRootView;
         }
 
@@ -55,7 +58,7 @@ namespace ZooWorld.Systems
             var view = Object.Instantiate(definition.Prefab, spawnPosition, Quaternion.identity, _worldRootView.Root);
 
             _animalsModel.AddAnimal(model);
-            view.Initialize(model, _animalsModel);
+            view.Initialize(model, _animalsModel, _viewsRegistry);
         }
 
         private Vector3 GetRandomPosition(Bounds bounds)

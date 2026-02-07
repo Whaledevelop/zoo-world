@@ -40,6 +40,12 @@ namespace ZooWorld.Systems
 
             foreach (var animal in _animalsModel.Animals)
             {
+                if (!animal.IsAlive.CurrentValue)
+                {
+
+                    continue;
+                }
+
                 var position = animal.Position.CurrentValue;
                 var clampedPosition = new Vector3(
                     Mathf.Clamp(position.x, bounds.min.x, bounds.max.x),

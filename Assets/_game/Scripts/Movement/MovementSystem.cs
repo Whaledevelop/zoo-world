@@ -50,6 +50,13 @@ namespace ZooWorld.Systems
         {
             foreach (var animal in _animalsModel.Animals)
             {
+                if (!animal.IsAlive.CurrentValue)
+                {
+                    CleanupAnimal(animal);
+
+                    continue;
+                }
+
                 switch (animal.Type)
                 {
                     case AnimalType.Frog when animal.MovementSettings is FrogMovementSettings frogMovementSettings:
@@ -137,6 +144,23 @@ namespace ZooWorld.Systems
             var randomDirection = Random.insideUnitCircle.normalized;
 
             return new Vector3(randomDirection.x, 0f, randomDirection.y);
+        }
+        
+        private void CleanupAnimal(IAnimalModel animal)
+        {
+            if (_frogJumpTweensById.TryGetValue(animal.Id, out var frogTween))
+            {
+                if (frogTween.IsActive())
+                {
+                    frogTween.Kill();
+                }
+
+                _frogJumpTweensById.Remove(animal.Id);
+            }
+
+            _nextJumpTimeById.Remove(animal.Id);
+            _snakeDirectionById.Remove(animal.Id);
+            _snakeTurnTimeById.Remove(animal.Id);
         }
     }
 }
