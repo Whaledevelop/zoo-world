@@ -3,6 +3,7 @@ using UnityEngine;
 using VContainer;
 using Whaledevelop.VContainer;
 using ZooWorld.Models;
+using ZooWorld.Movement.Strategies;
 using ZooWorld.Services;
 using ZooWorld.Settings;
 using ZooWorld.Views;
@@ -73,6 +74,18 @@ namespace ZooWorld.Systems
 
             builder.Register<ViewportBoundsService>(Lifetime.Singleton)
                 .As<IViewportBoundsService>();
+            
+            builder.Register<FrogJumpMovementStrategy>(Lifetime.Singleton)
+                .AsSelf();
+
+            builder.Register<SnakeLinearMovementStrategy>(Lifetime.Singleton)
+                .AsSelf();
+
+            builder.Register<NullAnimalMovementStrategy>(Lifetime.Singleton)
+                .AsSelf();
+
+            builder.Register<AnimalMovementStrategyResolver>(Lifetime.Singleton)
+                .As<IAnimalMovementStrategyResolver>();
             
             builder.Register<SpawnSystem>(Lifetime.Singleton)
                 .AsSelf()
