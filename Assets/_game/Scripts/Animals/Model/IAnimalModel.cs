@@ -10,6 +10,7 @@ namespace ZooWorld.Models
         int Id { get; }
         AnimalType Type { get; }
         AnimalGroup Group { get; }
+        AnimalSettings Settings { get; }
         AnimalMovementSettings MovementSettings { get; }
         ReadOnlyReactiveProperty<bool> IsAlive { get; }
         ReadOnlyReactiveProperty<Vector3> Position { get; }

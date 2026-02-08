@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using ZooWorld.Models;
@@ -16,6 +16,8 @@ namespace ZooWorld.Systems
         private readonly IAnimalsModel _animalsModel;
         private readonly IAnimalViewsRegistry _viewsRegistry;
         private readonly ZooWorldRootView _worldRootView;
+        private readonly PoolingSettings _poolingSettings;
+        private readonly IAnimalViewsPool _animalViewsPool;
         private int _nextId;
 
         public SpawnSystem(
@@ -23,13 +25,17 @@ namespace ZooWorld.Systems
             AnimalSettingsTable animalSettingsTable,
             IAnimalsModel animalsModel,
             IAnimalViewsRegistry viewsRegistry,
-            ZooWorldRootView worldRootView)
+            ZooWorldRootView worldRootView,
+            PoolingSettings poolingSettings,
+            IAnimalViewsPool animalViewsPool)
         {
             _zooWorldSettings = zooWorldSettings;
             _animalSettingsTable = animalSettingsTable;
             _animalsModel = animalsModel;
             _viewsRegistry = viewsRegistry;
             _worldRootView = worldRootView;
+            _poolingSettings = poolingSettings;
+            _animalViewsPool = animalViewsPool;
         }
 
         protected override UniTask OnInitializeAsync(CancellationToken cancellationToken)
@@ -52,10 +58,16 @@ namespace ZooWorld.Systems
 
         private void SpawnAnimal()
         {
+            if (IsAliveLimitReached())
+            {
+
+                return;
+            }
+
             var definition = _animalSettingsTable.Animals[Random.Range(0, _animalSettingsTable.Animals.Count)];
             var spawnPosition = GetRandomPosition(_zooWorldSettings.WorldBounds);
             var model = new AnimalModel(++_nextId, definition, spawnPosition);
-            var view = Object.Instantiate(definition.Prefab, spawnPosition, Quaternion.identity, _worldRootView.Root);
+            var view = _animalViewsPool.Get(definition, _worldRootView.Root, spawnPosition, Quaternion.identity);
 
             _animalsModel.AddAnimal(model);
             view.Initialize(model, _animalsModel, _viewsRegistry);
@@ -68,6 +80,29 @@ namespace ZooWorld.Systems
 
             
             return new Vector3(xPosition, bounds.center.y, zPosition);
+        }
+
+        private bool IsAliveLimitReached()
+        {
+            var aliveCount = 0;
+
+            foreach (var animal in _animalsModel.Animals)
+            {
+                if (!animal.IsAlive.CurrentValue)
+                {
+                    continue;
+                }
+
+                aliveCount += 1;
+            }
+
+            if (aliveCount < _poolingSettings.MaxAliveAnimals)
+            {
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

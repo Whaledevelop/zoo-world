@@ -1,6 +1,5 @@
-﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
-using R3;
 using UnityEngine;
 using ZooWorld.Models;
 
@@ -28,11 +27,9 @@ namespace ZooWorld.Views
 
         private void OnDisable()
         {
-            Registry.Remove(_rigidbody);
-
-            if (_model != null && _registry != null)
+            if (_rigidbody && Registry.ContainsKey(_rigidbody))
             {
-                _registry.Unregister(_model.Id);
+                Registry.Remove(_rigidbody);
             }
 
             foreach (var subscription in _subscriptions)
@@ -51,6 +48,34 @@ namespace ZooWorld.Views
             Registry[_rigidbody] = this;
             _registry.Register(_model.Id, this);
             _isInitialized = true;
+        }
+
+        public void Deinitialize()
+        {
+            if (_model != null && _registry != null)
+            {
+                _registry.Unregister(_model.Id);
+            }
+
+            _model = null;
+            _animalsModel = null;
+            _registry = null;
+            _isInitialized = false;
+        }
+
+        public void ResetForPool()
+        {
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+            _rigidbody.position = transform.position;
+            _rigidbody.rotation = transform.rotation;
+
+            if (_rigidbody.IsSleeping())
+            {
+                _rigidbody.WakeUp();
+            }
+
+            _collider.enabled = true;
         }
 
         private void FixedUpdate()

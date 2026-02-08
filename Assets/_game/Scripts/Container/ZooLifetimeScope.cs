@@ -48,6 +48,10 @@ namespace ZooWorld.Systems
         [BoxGroup("Settings")]
         private AnimalMovementStrategyCatalog _movementStrategyCatalog;
 
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private PoolingSettings _poolingSettings;
+        
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
@@ -58,6 +62,7 @@ namespace ZooWorld.Systems
             builder.RegisterInstance(_uiSettings);
             builder.RegisterInstance(_screenBoundsSettings);
             builder.RegisterInstance(_movementStrategyCatalog);
+            builder.RegisterInstance(_poolingSettings);
             builder.RegisterInstance(_uiView);
             builder.RegisterInstance(_worldRootView);
             builder.RegisterInstance(_cameraView);
@@ -67,7 +72,10 @@ namespace ZooWorld.Systems
 
             builder.Register<AnimalViewsRegistry>(Lifetime.Singleton)
                 .As<IAnimalViewsRegistry>();
-
+            
+            builder.Register<AnimalViewsPool>(Lifetime.Singleton)
+                .As<IAnimalViewsPool>();
+            
             builder.Register<ICameraModel>(
                     container => new CameraModel(
                         _zooWorldSettings.WorldBounds,

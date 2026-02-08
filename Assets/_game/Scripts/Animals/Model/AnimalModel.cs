@@ -1,4 +1,4 @@
-﻿using R3;
+﻿﻿using R3;
 using UnityEngine;
 using ZooWorld.Enums;
 using ZooWorld.Settings;
@@ -7,7 +7,7 @@ namespace ZooWorld.Models
 {
     public sealed class AnimalModel : IAnimalModel
     {
-        private AnimalSettings _animalSettings;
+        private readonly AnimalSettings _animalSettings;
         
         private readonly ReactiveProperty<bool> _isAlive;
         private readonly ReactiveProperty<Vector3> _position;
@@ -31,6 +31,7 @@ namespace ZooWorld.Models
         public int Id { get; }
         public AnimalType Type => _animalSettings.Type;
         public AnimalGroup Group => _animalSettings.Group;
+        public AnimalSettings Settings => _animalSettings;
 
         public AnimalMovementSettings MovementSettings => _animalSettings.AnimalMovementSettings;
         public ReadOnlyReactiveProperty<bool> IsAlive => _isAliveReadOnly;

@@ -8,7 +8,6 @@ using ZooWorld.Models;
 using ZooWorld.Views;
 using Whaledevelop;
 using Whaledevelop.Systems;
-using Object = UnityEngine.Object;
 
 namespace ZooWorld.Systems
 {
@@ -16,12 +15,17 @@ namespace ZooWorld.Systems
     {
         private readonly IAnimalsModel _animalsModel;
         private readonly IAnimalViewsRegistry _viewsRegistry;
+        private readonly IAnimalViewsPool _animalViewsPool;
         private readonly List<IDisposable> _subscriptions;
 
-        public AnimalDespawnSystem(IAnimalsModel animalsModel, IAnimalViewsRegistry viewsRegistry)
+        public AnimalDespawnSystem(
+            IAnimalsModel animalsModel,
+            IAnimalViewsRegistry viewsRegistry,
+            IAnimalViewsPool animalViewsPool)
         {
             _animalsModel = animalsModel;
             _viewsRegistry = viewsRegistry;
+            _animalViewsPool = animalViewsPool;
             _subscriptions = new List<IDisposable>();
         }
 
@@ -48,10 +52,19 @@ namespace ZooWorld.Systems
         {
             if (_viewsRegistry.TryGet(animal.Id, out var view))
             {
-                Object.Destroy(view.gameObject);
+                view.Deinitialize();
+                view.ResetForPool();
+                _animalViewsPool.Return(animal.Settings, view);
             }
-
             _animalsModel.RemoveAnimal(animal);
+        }
+        
+        private void ResetForPool(AnimalView view)
+        {
+   
+
+
+   
         }
     }
 }
