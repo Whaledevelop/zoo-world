@@ -57,6 +57,11 @@ namespace ZooWorld.Views
                 _registry.Unregister(_model.Id);
             }
 
+            if (_rigidbody)
+            {
+                Registry.Remove(_rigidbody);
+            }
+            
             _model = null;
             _animalsModel = null;
             _registry = null;
@@ -92,6 +97,11 @@ namespace ZooWorld.Views
 
         private void OnCollisionEnter(Collision collision)
         {
+            if (!_isInitialized)
+            {
+
+                return;
+            }
             var otherRigidbody = collision.rigidbody;
 
             if (otherRigidbody == null)
@@ -100,10 +110,14 @@ namespace ZooWorld.Views
                 return;
             }
 
-            if (Registry.TryGetValue(otherRigidbody, out var otherView))
+
+            if (!Registry.TryGetValue(otherRigidbody, out var otherView) || !otherView._isInitialized)
             {
-                _animalsModel.ReportCollision(_model, otherView._model);
+
+                return;
             }
+
+            _animalsModel.ReportCollision(_model, otherView._model);
         }
     }
 }
