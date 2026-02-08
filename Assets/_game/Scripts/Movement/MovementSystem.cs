@@ -63,7 +63,9 @@ namespace ZooWorld.Systems
                 _screenBoundsSettings,
                 _obstacleQueryService,
                 _obstacleSettings,
-                Time.time);
+                _viewsRegistry,
+                Time.time,
+                Time.fixedDeltaTime);
 
             foreach (var animal in _animalsModel.Animals)
             {

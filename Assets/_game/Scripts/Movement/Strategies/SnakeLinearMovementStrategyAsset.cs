@@ -2,6 +2,7 @@
 using UnityEngine;
 using ZooWorld.Models;
 using ZooWorld.Settings;
+using ZooWorld.Views;
 
 namespace ZooWorld.Movement.Strategies
 {
@@ -46,6 +47,14 @@ namespace ZooWorld.Movement.Strategies
             rigidbodyVelocity.x = targetVelocity.x;
             rigidbodyVelocity.z = targetVelocity.z;
             rigidbody.linearVelocity = rigidbodyVelocity;
+            
+            if (!context.ViewsRegistry.TryGet(animal.Id, out var view) || direction.sqrMagnitude <= 0f)
+            {
+
+                return;
+            }
+
+            RotateTowardsDirection(view, direction, settings, context.DeltaTime);
         }
 
         public override void Cleanup(int animalId)
@@ -157,6 +166,32 @@ namespace ZooWorld.Movement.Strategies
             var steeredDirection = Vector3.Lerp(direction, returnDirection, screenBoundsSettings.ReturnSteerStrength);
 
             return steeredDirection.normalized;
+        }
+        
+        private void RotateTowardsDirection(AnimalView view, Vector3 direction, SnakeMovementSettings settings, float deltaTime)
+        {
+            var flattenedDirection = new Vector3(direction.x, 0f, direction.z);
+            var targetRotation = GetTargetRotation(view, flattenedDirection);
+            var maxStep = settings.TurnSpeedDegPerSec * deltaTime;
+            var currentRotation = view.transform.rotation;
+            var angle = Quaternion.Angle(currentRotation, targetRotation);
+
+            if (settings.SnapIfVeryClose && angle <= settings.SnapAngleThresholdDeg)
+            {
+                view.transform.rotation = targetRotation;
+
+                return;
+            }
+
+            view.transform.rotation = Quaternion.RotateTowards(currentRotation, targetRotation, maxStep);
+        }
+
+        private Quaternion GetTargetRotation(AnimalView view, Vector3 direction)
+        {
+            var targetYaw = Quaternion.LookRotation(direction, Vector3.up);
+            var initialYaw = Quaternion.LookRotation(view.InitialForwardDirection, Vector3.up);
+
+            return targetYaw * Quaternion.Inverse(initialYaw) * view.InitialRotation;
         }
     }
 }
