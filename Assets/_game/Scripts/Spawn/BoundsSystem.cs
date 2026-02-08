@@ -1,7 +1,8 @@
-﻿using System.Threading;
+﻿﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using ZooWorld.Models;
+using ZooWorld.Settings;
 using Whaledevelop;
 using Whaledevelop.Systems;
 
@@ -11,11 +12,13 @@ namespace ZooWorld.Systems
     {
         private readonly IAnimalsModel _animalsModel;
         private readonly ICameraModel _cameraModel;
+        private readonly ScreenBoundsSettings _screenBoundsSettings;
 
-        public BoundsSystem(IAnimalsModel animalsModel, ICameraModel cameraModel)
+        public BoundsSystem(IAnimalsModel animalsModel, ICameraModel cameraModel, ScreenBoundsSettings screenBoundsSettings)
         {
             _animalsModel = animalsModel;
             _cameraModel = cameraModel;
+            _screenBoundsSettings = screenBoundsSettings;
         }
 
         protected override UniTask OnInitializeAsync(CancellationToken cancellationToken)
@@ -36,6 +39,12 @@ namespace ZooWorld.Systems
 
         private void ClampAnimals()
         {
+            if (_screenBoundsSettings.UseViewportBounds)
+            {
+
+                return;
+            }
+
             var bounds = _cameraModel.WorldBounds.CurrentValue;
 
             foreach (var animal in _animalsModel.Animals)

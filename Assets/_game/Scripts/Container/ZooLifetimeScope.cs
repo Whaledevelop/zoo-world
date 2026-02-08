@@ -3,6 +3,7 @@ using UnityEngine;
 using VContainer;
 using Whaledevelop.VContainer;
 using ZooWorld.Models;
+using ZooWorld.Services;
 using ZooWorld.Settings;
 using ZooWorld.Views;
 
@@ -37,7 +38,11 @@ namespace ZooWorld.Systems
         [SerializeField]
         [BoxGroup("Views")]
         private CameraView _cameraView;
-
+        
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private ScreenBoundsSettings _screenBoundsSettings;
+        
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
@@ -46,6 +51,7 @@ namespace ZooWorld.Systems
             builder.RegisterInstance(_animalSettingsTable);
             builder.RegisterInstance(_predatorEatSettings);
             builder.RegisterInstance(_uiSettings);
+            builder.RegisterInstance(_screenBoundsSettings);
             builder.RegisterInstance(_uiView);
             builder.RegisterInstance(_worldRootView);
             builder.RegisterInstance(_cameraView);
@@ -65,6 +71,9 @@ namespace ZooWorld.Systems
                     Lifetime.Singleton)
                 .As<ICameraModel>();
 
+            builder.Register<ViewportBoundsService>(Lifetime.Singleton)
+                .As<IViewportBoundsService>();
+            
             builder.Register<SpawnSystem>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IAsyncInitializable>()

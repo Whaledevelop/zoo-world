@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88681235ce5943fd9d98d99e85068c32, type: 3}
   m_Name: ZooWorldSettings
   m_EditorClassIdentifier: Assembly-CSharp::ZooWorld.Settings.ZooWorldSettings
-  <SpawnIntervalRange>k__BackingField: {x: 3, y: 5}
+  <SpawnIntervalRange>k__BackingField: {x: 1, y: 2}
   <WorldBounds>k__BackingField:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 10, y: 0, z: 10}
+    m_Extent: {x: 5, y: 0, z: 5}
   <CameraPosition>k__BackingField: {x: 0, y: 20, z: 0}
   <CameraRotation>k__BackingField: {x: 90, y: 0, z: 0}
   <CameraOrthographicSize>k__BackingField: 12

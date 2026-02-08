@@ -1293,7 +1293,7 @@ Transform:
   m_GameObject: {fileID: 1696066781}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
   m_LocalScale: {x: 100, y: 1, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1339,6 +1339,7 @@ MonoBehaviour:
   _uiView: {fileID: 1595658612}
   _worldRootView: {fileID: 1501783362}
   _cameraView: {fileID: 464944164}
+  _screenBoundsSettings: {fileID: 11400000, guid: 76a4af12ab2eab74097782f6f4bde1a8, type: 2}
 --- !u!4 &1769774914
 Transform:
   m_ObjectHideFlags: 0
