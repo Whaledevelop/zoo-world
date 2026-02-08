@@ -2,7 +2,7 @@
 
 namespace ZooWorld.Settings
 {
-    [CreateAssetMenu(fileName = "FrogMovementSettings", menuName = "ZooWorld/Settings/Frog Movement")]
+    [CreateAssetMenu(fileName = "FrogMovementSettings", menuName = "ZooWorld/Movement/FrogMovementSettings")]
     public sealed class FrogMovementSettings : AnimalMovementSettings
     {
         [field: SerializeField]

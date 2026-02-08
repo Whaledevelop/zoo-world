@@ -6,7 +6,7 @@ using ZooWorld.Settings;
 
 namespace ZooWorld.Movement.Strategies
 {
-    [CreateAssetMenu(fileName = "AnimalMovementStrategyCatalog", menuName = "ZooWorld/Settings/Movement Strategy Catalog")]
+    [CreateAssetMenu(fileName = "AnimalMovementStrategyCatalog", menuName = "ZooWorld/Movement/AnimalMovementStrategyCatalog")]
     public sealed class AnimalMovementStrategyCatalog : ScriptableObject
     {
         [Serializable]

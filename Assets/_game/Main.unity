@@ -1340,6 +1340,7 @@ MonoBehaviour:
   _worldRootView: {fileID: 1501783362}
   _cameraView: {fileID: 464944164}
   _screenBoundsSettings: {fileID: 11400000, guid: 76a4af12ab2eab74097782f6f4bde1a8, type: 2}
+  _movementStrategyCatalog: {fileID: 11400000, guid: 93f7039fc82679f46af4e13ff27d8ce3, type: 2}
 --- !u!4 &1769774914
 Transform:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using ZooWorld.Settings;
 
 namespace ZooWorld.Movement.Strategies
 {
+    [CreateAssetMenu(fileName = "SnakeLinearMovementStrategyAsset", menuName = "ZooWorld/Movement/SnakeLinearMovementStrategyAsset")]
     public sealed class SnakeLinearMovementStrategyAsset : AnimalMovementStrategyAsset
     {
         private readonly Dictionary<int, Vector3> _directionById = new();

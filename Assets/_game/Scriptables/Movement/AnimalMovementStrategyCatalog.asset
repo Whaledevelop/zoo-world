@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ddd932c1fb5469a8b244adad5988c60, type: 3}
+  m_Name: AnimalMovementStrategyCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::ZooWorld.Movement.Strategies.AnimalMovementStrategyCatalog
+  <Bindings>k__BackingField:
+  - <SettingsPrototype>k__BackingField: {fileID: 11400000, guid: c4f9cb2d4dd48c34bb265b86c14c63c5, type: 2}
+    <Strategy>k__BackingField: {fileID: 11400000, guid: af40229ca662fc244a41c11486164203, type: 2}
+  - <SettingsPrototype>k__BackingField: {fileID: 11400000, guid: 75621864d0e0fd245af9bd22156736e5, type: 2}
+    <Strategy>k__BackingField: {fileID: 11400000, guid: 8c5ce63f0a8011b4cb15cea040bf70a1, type: 2}

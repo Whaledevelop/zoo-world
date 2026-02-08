@@ -48,10 +48,6 @@ namespace ZooWorld.Systems
         [BoxGroup("Settings")]
         private AnimalMovementStrategyCatalog _movementStrategyCatalog;
 
-        [SerializeField]
-        [BoxGroup("Settings")]
-        private NullAnimalMovementStrategyAsset _nullMovementStrategy;
-
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
@@ -62,7 +58,6 @@ namespace ZooWorld.Systems
             builder.RegisterInstance(_uiSettings);
             builder.RegisterInstance(_screenBoundsSettings);
             builder.RegisterInstance(_movementStrategyCatalog);
-            builder.RegisterInstance(_nullMovementStrategy);
             builder.RegisterInstance(_uiView);
             builder.RegisterInstance(_worldRootView);
             builder.RegisterInstance(_cameraView);

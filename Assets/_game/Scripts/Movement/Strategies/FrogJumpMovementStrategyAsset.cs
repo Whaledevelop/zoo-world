@@ -5,6 +5,7 @@ using ZooWorld.Settings;
 
 namespace ZooWorld.Movement.Strategies
 {
+    [CreateAssetMenu(fileName = "FrogJumpMovementStrategyAsset", menuName = "ZooWorld/Movement/FrogJumpMovementStrategyAsset")]
     public sealed class FrogJumpMovementStrategyAsset : AnimalMovementStrategyAsset
     {
         private readonly Dictionary<int, float> _nextJumpTimeById = new();

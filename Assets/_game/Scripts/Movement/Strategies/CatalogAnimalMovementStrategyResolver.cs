@@ -7,14 +7,9 @@ namespace ZooWorld.Movement.Strategies
     public sealed class CatalogAnimalMovementStrategyResolver : IAnimalMovementStrategyResolver
     {
         private readonly IReadOnlyDictionary<Type, AnimalMovementStrategyAsset> _strategiesBySettingsType;
-        private readonly NullAnimalMovementStrategyAsset _fallback;
 
-        public CatalogAnimalMovementStrategyResolver(
-            AnimalMovementStrategyCatalog catalog,
-            NullAnimalMovementStrategyAsset fallback)
+        public CatalogAnimalMovementStrategyResolver(AnimalMovementStrategyCatalog catalog)
         {
-            _fallback = fallback;
-
             var strategiesBySettingsType = new Dictionary<Type, AnimalMovementStrategyAsset>();
 
             foreach (var binding in catalog.Bindings)
@@ -29,9 +24,7 @@ namespace ZooWorld.Movement.Strategies
         public AnimalMovementStrategyAsset Resolve(IAnimalModel animal)
         {
             var settingsType = animal.MovementSettings.GetType();
-            var strategy = _strategiesBySettingsType.GetValueOrDefault(settingsType, _fallback);
-
-            return strategy;
+            return _strategiesBySettingsType.GetValueOrDefault(settingsType);
         }
     }
 }
