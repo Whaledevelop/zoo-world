@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using R3;
 using UnityEngine;
@@ -20,6 +20,7 @@ namespace ZooWorld.Views
         private IAnimalModel _model;
         private IAnimalsModel _animalsModel;
         private IAnimalViewsRegistry _registry;
+        private bool _isInitialized;
 
         public Rigidbody Rigidbody => _rigidbody;
         public Collider Collider => _collider;
@@ -49,11 +50,19 @@ namespace ZooWorld.Views
             _registry = registry;
             Registry[_rigidbody] = this;
             _registry.Register(_model.Id, this);
+            _isInitialized = true;
+        }
 
-            _subscriptions.Add(_model.Position.Subscribe(position =>
+        private void FixedUpdate()
+        {
+            if (!_isInitialized || !_model.IsAlive.CurrentValue)
             {
-                _rigidbody.position = position;
-            }));
+
+                return;
+            }
+
+            _model.SetPosition(_rigidbody.position);
+            _model.SetVelocity(_rigidbody.linearVelocity);
         }
 
         private void OnCollisionEnter(Collision collision)

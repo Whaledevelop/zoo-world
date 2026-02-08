@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
 using ZooWorld.Enums;
 using ZooWorld.Models;
+using ZooWorld.Services;
 using ZooWorld.Settings;
+using ZooWorld.Views;
 using Whaledevelop;
 using Whaledevelop.Systems;
 
@@ -15,17 +16,26 @@ namespace ZooWorld.Systems
     {
         private readonly IAnimalsModel _animalsModel;
         private readonly AnimalSettingsTable _animalSettingsTable;
+        private readonly IAnimalViewsRegistry _viewsRegistry;
+        private readonly IViewportBoundsService _viewportBoundsService;
+        private readonly ScreenBoundsSettings _screenBoundsSettings;
         private readonly Dictionary<int, float> _nextJumpTimeById;
-        private readonly Dictionary<int, Tween> _frogJumpTweensById;
         private readonly Dictionary<int, Vector3> _snakeDirectionById;
         private readonly Dictionary<int, float> _snakeTurnTimeById;
 
-        public MovementSystem(IAnimalsModel animalsModel, AnimalSettingsTable animalSettingsTable)
+        public MovementSystem(
+            IAnimalsModel animalsModel,
+            AnimalSettingsTable animalSettingsTable,
+            IAnimalViewsRegistry viewsRegistry,
+            IViewportBoundsService viewportBoundsService,
+            ScreenBoundsSettings screenBoundsSettings)
         {
             _animalsModel = animalsModel;
             _animalSettingsTable = animalSettingsTable;
+            _viewsRegistry = viewsRegistry;
+            _viewportBoundsService = viewportBoundsService;
+            _screenBoundsSettings = screenBoundsSettings;
             _nextJumpTimeById = new Dictionary<int, float>();
-            _frogJumpTweensById = new Dictionary<int, Tween>();
             _snakeDirectionById = new Dictionary<int, Vector3>();
             _snakeTurnTimeById = new Dictionary<int, float>();
         }
@@ -41,12 +51,12 @@ namespace ZooWorld.Systems
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                UpdateAnimals(Time.deltaTime);
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, cancellationToken);
+                UpdateAnimals();
             }
         }
 
-        private void UpdateAnimals(float deltaTime)
+        private void UpdateAnimals()
         {
             foreach (var animal in _animalsModel.Animals)
             {
@@ -57,26 +67,26 @@ namespace ZooWorld.Systems
                     continue;
                 }
 
+                if (!_viewsRegistry.TryGetRigidbody(animal.Id, out var rigidbody))
+                {
+
+                    continue;
+                }
+
                 switch (animal.Type)
                 {
                     case AnimalType.Frog when animal.MovementSettings is FrogMovementSettings frogMovementSettings:
-                        UpdateFrog(animal, frogMovementSettings);
+                        UpdateFrog(animal, rigidbody, frogMovementSettings);
                         break;
                     case AnimalType.Snake when animal.MovementSettings is SnakeMovementSettings snakeMovementSettings:
-                        UpdateSnake(animal, snakeMovementSettings, deltaTime);
+                        UpdateSnake(animal, rigidbody, snakeMovementSettings);
                         break;
                 }
             }
         }
 
-        private void UpdateFrog(IAnimalModel animal, FrogMovementSettings settings)
+        private void UpdateFrog(IAnimalModel animal, Rigidbody rigidbody, FrogMovementSettings settings)
         {
-            if (_frogJumpTweensById.TryGetValue(animal.Id, out var existingTween) && existingTween.IsActive())
-            {
-
-                return;
-            }
-
             var time = Time.time;
 
             var nextJumpTime = _nextJumpTimeById.GetValueOrDefault(animal.Id, time);
@@ -87,34 +97,22 @@ namespace ZooWorld.Systems
                 return;
             }
 
-            var startPosition = animal.Position.CurrentValue;
             var randomDirection = Random.insideUnitCircle.normalized;
             var direction = new Vector3(randomDirection.x, 0f, randomDirection.y);
-            var targetPosition = startPosition + direction * settings.JumpDistance;
+            direction = GetBiasedDirection(rigidbody.position, direction, _screenBoundsSettings.FrogReturnBias);
+
             var duration = Mathf.Max(settings.JumpDuration, 0.01f);
-            var arcHeight = settings.JumpArcHeight;
+            var horizontalSpeed = settings.JumpDistance / duration;
+            var horizontalVelocity = direction * horizontalSpeed;
+            var jumpUpVelocity = 2f * settings.JumpArcHeight / duration;
+            var velocity = new Vector3(horizontalVelocity.x, jumpUpVelocity, horizontalVelocity.z);
 
-            var tween = DOTween.To(
-                    () => 0f,
-                    progress =>
-                    {
-                        var heightOffset = Mathf.Sin(progress * Mathf.PI) * arcHeight;
-                        var horizontalPosition = Vector3.Lerp(startPosition, targetPosition, progress);
-                        animal.SetPosition(horizontalPosition + Vector3.up * heightOffset);
-                    },
-                    1f,
-                    duration)
-                .SetEase(Ease.OutQuad)
-                .OnComplete(() =>
-                {
-                    _frogJumpTweensById.Remove(animal.Id);
-                });
-
-            _frogJumpTweensById[animal.Id] = tween;
+            rigidbody.linearVelocity = Vector3.zero;
+            rigidbody.linearVelocity = velocity;
             _nextJumpTimeById[animal.Id] = time + settings.JumpInterval;
         }
 
-        private void UpdateSnake(IAnimalModel animal, SnakeMovementSettings settings, float deltaTime)
+        private void UpdateSnake(IAnimalModel animal, Rigidbody rigidbody, SnakeMovementSettings settings)
         {
             var time = Time.time;
 
@@ -133,10 +131,14 @@ namespace ZooWorld.Systems
                 _snakeTurnTimeById[animal.Id] = time + settings.TurnInterval;
             }
 
-            var displacement = direction * (settings.Speed * deltaTime);
-            var position = animal.Position.CurrentValue + displacement;
-            animal.SetPosition(position);
-            animal.SetVelocity(displacement / Mathf.Max(deltaTime, 0.01f));
+            direction = GetReturnSteerDirection(rigidbody.position, direction);
+            _snakeDirectionById[animal.Id] = direction;
+
+            var targetVelocity = direction * settings.Speed;
+            var rigidbodyVelocity = rigidbody.linearVelocity;
+            rigidbodyVelocity.x = targetVelocity.x;
+            rigidbodyVelocity.z = targetVelocity.z;
+            rigidbody.linearVelocity = rigidbodyVelocity;
         }
 
         private Vector3 GetRandomDirection()
@@ -145,19 +147,37 @@ namespace ZooWorld.Systems
 
             return new Vector3(randomDirection.x, 0f, randomDirection.y);
         }
+
+        private Vector3 GetReturnSteerDirection(Vector3 position, Vector3 direction)
+        {
+            if (!_screenBoundsSettings.UseViewportBounds || _viewportBoundsService.IsInside(position))
+            {
+
+                return direction;
+            }
+
+            var returnDirection = _viewportBoundsService.GetReturnDirection(position);
+            var steeredDirection = Vector3.Lerp(direction, returnDirection, _screenBoundsSettings.ReturnSteerStrength);
+
+            return steeredDirection.normalized;
+        }
+
+        private Vector3 GetBiasedDirection(Vector3 position, Vector3 direction, float bias)
+        {
+            if (!_screenBoundsSettings.UseViewportBounds || _viewportBoundsService.IsInside(position))
+            {
+
+                return direction;
+            }
+
+            var returnDirection = _viewportBoundsService.GetReturnDirection(position);
+            var biasedDirection = Vector3.Lerp(direction, returnDirection, bias);
+
+            return biasedDirection.normalized;
+        }
         
         private void CleanupAnimal(IAnimalModel animal)
         {
-            if (_frogJumpTweensById.TryGetValue(animal.Id, out var frogTween))
-            {
-                if (frogTween.IsActive())
-                {
-                    frogTween.Kill();
-                }
-
-                _frogJumpTweensById.Remove(animal.Id);
-            }
-
             _nextJumpTimeById.Remove(animal.Id);
             _snakeDirectionById.Remove(animal.Id);
             _snakeTurnTimeById.Remove(animal.Id);
