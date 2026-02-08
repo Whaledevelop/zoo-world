@@ -7,6 +7,7 @@ using ZooWorld.Settings;
 using ZooWorld.Views;
 using Whaledevelop;
 using Whaledevelop.Systems;
+using ZooWorld.Services;
 
 namespace ZooWorld.Systems
 {
@@ -21,6 +22,8 @@ namespace ZooWorld.Systems
         private readonly IAnimalViewsPool _animalViewsPool;
         private readonly IObstacleQueryService _obstacleQueryService;
         private readonly ObstacleSettings _obstacleSettings;
+        private readonly AnimalPhysicsSetupService _animalPhysicsSetupService;
+        
         private int _nextId;
 
         public SpawnSystem(
@@ -32,7 +35,8 @@ namespace ZooWorld.Systems
             PoolingSettings poolingSettings,
             IAnimalViewsPool animalViewsPool,
             IObstacleQueryService obstacleQueryService,
-            ObstacleSettings obstacleSettings)
+            ObstacleSettings obstacleSettings,
+            AnimalPhysicsSetupService animalPhysicsSetupService)
         {
             _zooWorldSettings = zooWorldSettings;
             _animalSettingsTable = animalSettingsTable;
@@ -43,6 +47,7 @@ namespace ZooWorld.Systems
             _animalViewsPool = animalViewsPool;
             _obstacleQueryService = obstacleQueryService;
             _obstacleSettings = obstacleSettings;
+            _animalPhysicsSetupService = animalPhysicsSetupService;
         }
 
         protected override UniTask OnInitializeAsync(CancellationToken cancellationToken)
@@ -85,6 +90,7 @@ namespace ZooWorld.Systems
 
             _animalsModel.AddAnimal(model);
             view.Initialize(model, _animalsModel, _viewsRegistry);
+            _animalPhysicsSetupService.Setup(view, model);
         }
 
         private Vector3? GetSpawnPosition(Bounds bounds)

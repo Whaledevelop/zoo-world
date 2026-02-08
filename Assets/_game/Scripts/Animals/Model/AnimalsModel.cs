@@ -1,5 +1,6 @@
-﻿﻿using System.Collections.Generic;
+﻿﻿﻿using System.Collections.Generic;
 using R3;
+using UnityEngine;
 using ZooWorld.Enums;
 using ZooWorld.Events;
 
@@ -18,7 +19,8 @@ namespace ZooWorld.Models
         private readonly Subject<IAnimalModel> _animalDied;
         private readonly Subject<IAnimalModel> _animalRemoved;
         private readonly Subject<PredatorAteEvent> _predatorAte;
-        private readonly Subject<AnimalCollisionEvent> _animalCollision;
+        private readonly Subject<AnimalsCollisionEvent> _animalCollision;
+        private readonly Subject<AnimalObstacleCollisionEvent> _animalObstacleCollision;
 
         public AnimalsModel()
         {
@@ -33,7 +35,8 @@ namespace ZooWorld.Models
             _animalDied = new Subject<IAnimalModel>();
             _animalRemoved = new Subject<IAnimalModel>();
             _predatorAte = new Subject<PredatorAteEvent>();
-            _animalCollision = new Subject<AnimalCollisionEvent>();
+            _animalCollision = new Subject<AnimalsCollisionEvent>();
+            _animalObstacleCollision = new Subject<AnimalObstacleCollisionEvent>();
         }
 
         public IReadOnlyList<IAnimalModel> Animals => _animals;
@@ -44,7 +47,8 @@ namespace ZooWorld.Models
         public Observable<IAnimalModel> OnAnimalDied => _animalDied;
         public Observable<IAnimalModel> OnAnimalRemoved => _animalRemoved;
         public Observable<PredatorAteEvent> OnPredatorAte => _predatorAte;
-        public Observable<AnimalCollisionEvent> OnAnimalCollision => _animalCollision;
+        public Observable<AnimalsCollisionEvent> OnAnimalCollision => _animalCollision;
+        public Observable<AnimalObstacleCollisionEvent> OnAnimalObstacleCollision => _animalObstacleCollision;
 
         public void AddAnimal(IAnimalModel model)
         {
@@ -88,7 +92,12 @@ namespace ZooWorld.Models
 
         public void ReportCollision(IAnimalModel first, IAnimalModel second)
         {
-            _animalCollision.OnNext(new AnimalCollisionEvent(first, second));
+            _animalCollision.OnNext(new AnimalsCollisionEvent(first, second));
+        }
+
+        public void ReportObstacleCollision(IAnimalModel animal, Vector3 point, Vector3 normal)
+        {
+            _animalObstacleCollision.OnNext(new AnimalObstacleCollisionEvent(animal, point, normal));
         }
 
         public void RegisterPredatorEat(IAnimalModel predator, IAnimalModel prey)

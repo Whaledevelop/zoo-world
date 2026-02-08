@@ -18,10 +18,15 @@ MonoBehaviour:
   <JumpArcHeight>k__BackingField: 2
   <LandingFreezeSeconds>k__BackingField: 0.35
   <RotationDurationSeconds>k__BackingField: 0.15
+  <LandingLinearDamping>k__BackingField: 8
+  <LandingAngularDamping>k__BackingField: 20
+  <FreezeXZOnLanding>k__BackingField: 1
   <GroundStickVelocityEpsilon>k__BackingField: 0.15
   <GroundRayDistance>k__BackingField: 0.25
   <GroundMask>k__BackingField:
     serializedVersion: 2
     m_Bits: 128
   <UseGroundRayCheck>k__BackingField: 1
+  <SetPhysicMaterialNoBounce>k__BackingField: 1
+  <FrogNoBounceMaterial>k__BackingField: {fileID: 13400000, guid: 5479adfb99b03aa41ad017a647f98faa, type: 2}
   <ExtraDownForce>k__BackingField: 15

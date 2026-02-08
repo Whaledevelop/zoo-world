@@ -29,7 +29,19 @@ namespace ZooWorld.Settings
         [field: SerializeField]
         [BoxGroup("Timing")]
         public float RotationDurationSeconds { get; private set; } = 0.15f;
+        
+        [field: SerializeField]
+        [BoxGroup("Landing")]
+        public float LandingLinearDamping { get; private set; } = 8f;
 
+        [field: SerializeField]
+        [BoxGroup("Landing")]
+        public float LandingAngularDamping { get; private set; } = 20f;
+
+        [field: SerializeField]
+        [BoxGroup("Landing")]
+        public bool FreezeXZOnLanding { get; private set; } = true;
+        
         [field: SerializeField]
         [BoxGroup("Ground")]
         public float GroundStickVelocityEpsilon { get; private set; } = 0.15f;
@@ -46,6 +58,14 @@ namespace ZooWorld.Settings
         [BoxGroup("Ground")]
         public bool UseGroundRayCheck { get; private set; } = true;
 
+        [field: SerializeField]
+        [BoxGroup("Physics")]
+        public bool SetPhysicMaterialNoBounce { get; private set; } = true;
+
+        [field: SerializeField]
+        [BoxGroup("Physics")]
+        public PhysicsMaterial FrogNoBounceMaterial { get; private set; }
+        
         [field: SerializeField]
         [BoxGroup("Forces")]
         public float ExtraDownForce { get; private set; } = 15f;

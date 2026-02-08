@@ -112,7 +112,7 @@ namespace ZooWorld.Views
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (!_isInitialized)
+            if (!_isInitialized || !_model.IsAlive.CurrentValue)
             {
 
                 return;
@@ -120,19 +120,15 @@ namespace ZooWorld.Views
 
             var otherRigidbody = collision.rigidbody;
 
-            if (otherRigidbody == null)
+            if (otherRigidbody != null && Registry.TryGetValue(otherRigidbody, out var otherView) && otherView._isInitialized)
             {
+                _animalsModel.ReportCollision(_model, otherView._model);
 
                 return;
             }
 
-            if (!Registry.TryGetValue(otherRigidbody, out var otherView) || !otherView._isInitialized)
-            {
-
-                return;
-            }
-
-            _animalsModel.ReportCollision(_model, otherView._model);
+            var contact = collision.GetContact(0);
+            _animalsModel.ReportObstacleCollision(_model, contact.point, contact.normal);
         }
     }
 }

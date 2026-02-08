@@ -57,6 +57,26 @@ namespace ZooWorld.Movement.Strategies
             RotateTowardsDirection(view, direction, settings, context.DeltaTime);
         }
 
+        public bool TryGetDirection(int animalId, out Vector3 direction)
+        {
+            if (_directionById.TryGetValue(animalId, out var storedDirection))
+            {
+                direction = storedDirection;
+
+                return true;
+            }
+
+            direction = Vector3.zero;
+
+            return false;
+        }
+
+        public void SetDirection(int animalId, Vector3 direction, float nextTurnTime)
+        {
+            _directionById[animalId] = direction;
+            _turnTimeById[animalId] = nextTurnTime;
+        }
+        
         public override void Cleanup(int animalId)
         {
             _directionById.Remove(animalId);

@@ -2,9 +2,9 @@
 
 namespace ZooWorld.Events
 {
-    public readonly struct AnimalCollisionEvent
+    public readonly struct AnimalsCollisionEvent
     {
-        public AnimalCollisionEvent(IAnimalModel first, IAnimalModel second)
+        public AnimalsCollisionEvent(IAnimalModel first, IAnimalModel second)
         {
             First = first;
             Second = second;

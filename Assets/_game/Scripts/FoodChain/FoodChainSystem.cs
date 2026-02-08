@@ -41,7 +41,7 @@ namespace ZooWorld.Systems
             return UniTask.CompletedTask;
         }
 
-        private void OnAnimalCollision(AnimalCollisionEvent collisionEvent)
+        private void OnAnimalCollision(AnimalsCollisionEvent collisionEvent)
         {
             var first = collisionEvent.First;
             var second = collisionEvent.Second;

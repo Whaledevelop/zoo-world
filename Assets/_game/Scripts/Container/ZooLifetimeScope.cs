@@ -97,6 +97,9 @@ namespace ZooWorld.Systems
             builder.Register<ObstacleQueryService>(Lifetime.Singleton)
                 .As<IObstacleQueryService>();
 
+            builder.Register<AnimalPhysicsSetupService>(Lifetime.Singleton)
+                .AsSelf();
+            
             builder.Register<CatalogAnimalMovementStrategyResolver>(Lifetime.Singleton)
                 .As<IAnimalMovementStrategyResolver>();
 
@@ -110,6 +113,11 @@ namespace ZooWorld.Systems
                 .As<IAsyncInitializable>()
                 .As<IAsyncReleasable>();
 
+            builder.Register<SnakeObstacleBounceSystem>(Lifetime.Singleton)
+                .AsSelf()
+                .As<IAsyncInitializable>()
+                .As<IAsyncReleasable>();
+            
             builder.Register<BoundsSystem>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IAsyncInitializable>()

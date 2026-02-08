@@ -13,6 +13,9 @@ namespace ZooWorld.Movement.Strategies
         private readonly Dictionary<int, float> _nextActionTimeById = new();
         private readonly Dictionary<int, Vector3> _nextJumpDirectionById = new();
         private readonly Dictionary<int, Quaternion> _targetRotationById = new();
+        private readonly Dictionary<int, float> _defaultLinearDampingById = new();
+        private readonly Dictionary<int, float> _defaultAngularDampingById = new();
+        private readonly Dictionary<int, RigidbodyConstraints> _defaultConstraintsById = new();
 
         public override void Tick(IAnimalModel animal, Rigidbody rigidbody, in AnimalMovementContext context)
         {
@@ -54,6 +57,10 @@ namespace ZooWorld.Movement.Strategies
             _nextActionTimeById.Remove(animalId);
             _nextJumpDirectionById.Remove(animalId);
             _targetRotationById.Remove(animalId);
+            
+            _defaultLinearDampingById.Remove(animalId);
+            _defaultAngularDampingById.Remove(animalId);
+            _defaultConstraintsById.Remove(animalId);
         }
 
         private void TickWaiting(
@@ -80,6 +87,7 @@ namespace ZooWorld.Movement.Strategies
                 return;
             }
 
+            RestoreMovementState(animalId, rigidbody);
             _nextJumpDirectionById[animalId] = direction;
             _targetRotationById[animalId] = GetTargetRotation(view, direction);
             _nextActionTimeById[animalId] = time + movementSettings.RotationDurationSeconds;
@@ -136,6 +144,7 @@ namespace ZooWorld.Movement.Strategies
                 return;
             }
 
+            ApplyLandingState(rigidbody, movementSettings);
             rigidbody.linearVelocity = Vector3.zero;
             rigidbody.angularVelocity = Vector3.zero;
             rigidbody.Sleep();
@@ -154,6 +163,57 @@ namespace ZooWorld.Movement.Strategies
             _nextActionTimeById[animalId] = time;
 
             return time;
+        }
+        
+        private void EnsureDefaults(int animalId, Rigidbody rigidbody)
+        {
+            if (_defaultConstraintsById.ContainsKey(animalId))
+            {
+
+                return;
+            }
+
+            _defaultLinearDampingById[animalId] = rigidbody.linearDamping;
+            _defaultAngularDampingById[animalId] = rigidbody.angularDamping;
+            _defaultConstraintsById[animalId] = rigidbody.constraints;
+        }
+
+        private void ApplyLandingState(Rigidbody rigidbody, FrogMovementSettings movementSettings)
+        {
+            rigidbody.linearVelocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
+            rigidbody.linearDamping = movementSettings.LandingLinearDamping;
+            rigidbody.angularDamping = movementSettings.LandingAngularDamping;
+
+            if (!movementSettings.FreezeXZOnLanding)
+            {
+
+                return;
+            }
+
+            rigidbody.constraints = rigidbody.constraints
+                                    | RigidbodyConstraints.FreezePositionX
+                                    | RigidbodyConstraints.FreezePositionZ
+                                    | RigidbodyConstraints.FreezeRotationX
+                                    | RigidbodyConstraints.FreezeRotationZ;
+        }
+
+        private void RestoreMovementState(int animalId, Rigidbody rigidbody)
+        {
+            if (_defaultLinearDampingById.TryGetValue(animalId, out var linearDamping))
+            {
+                rigidbody.linearDamping = linearDamping;
+            }
+
+            if (_defaultAngularDampingById.TryGetValue(animalId, out var angularDamping))
+            {
+                rigidbody.angularDamping = angularDamping;
+            }
+
+            if (_defaultConstraintsById.TryGetValue(animalId, out var constraints))
+            {
+                rigidbody.constraints = constraints;
+            }
         }
 
         private void ApplyJumpVelocity(Rigidbody rigidbody, FrogMovementSettings settings, Vector3 direction)
