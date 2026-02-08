@@ -1,33 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using ZooWorld.Models;
-using ZooWorld.Settings;
+﻿using ZooWorld.Models;
 
 namespace ZooWorld.Movement.Strategies
 {
     public sealed class AnimalMovementStrategyResolver : IAnimalMovementStrategyResolver
     {
-        private readonly IReadOnlyDictionary<Type, IAnimalMovementStrategy> _strategiesBySettingsType;
-        private readonly NullAnimalMovementStrategy _fallback;
+        private readonly CatalogAnimalMovementStrategyResolver _resolver;
 
         public AnimalMovementStrategyResolver(
-            FrogJumpMovementStrategy frog,
-            SnakeLinearMovementStrategy snake,
-            NullAnimalMovementStrategy fallback)
+            AnimalMovementStrategyCatalog catalog,
+            NullAnimalMovementStrategyAsset fallback)
         {
-            _fallback = fallback;
-            _strategiesBySettingsType = new Dictionary<Type, IAnimalMovementStrategy>
-            {
-                { typeof(FrogMovementSettings), frog },
-                { typeof(SnakeMovementSettings), snake }
-            };
+            _resolver = new CatalogAnimalMovementStrategyResolver(catalog, fallback);
         }
 
-        public IAnimalMovementStrategy Resolve(IAnimalModel animal)
+        public AnimalMovementStrategyAsset Resolve(IAnimalModel animal)
         {
-            var settingsType = animal.MovementSettings.GetType();
-
-            var strategy = _strategiesBySettingsType.GetValueOrDefault(settingsType, _fallback);
+            var strategy = _resolver.Resolve(animal);
 
             return strategy;
         }

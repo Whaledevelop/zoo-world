@@ -39,11 +39,19 @@ namespace ZooWorld.Systems
         [SerializeField]
         [BoxGroup("Views")]
         private CameraView _cameraView;
-        
+
         [SerializeField]
         [BoxGroup("Settings")]
         private ScreenBoundsSettings _screenBoundsSettings;
-        
+
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private AnimalMovementStrategyCatalog _movementStrategyCatalog;
+
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private NullAnimalMovementStrategyAsset _nullMovementStrategy;
+
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
@@ -53,13 +61,15 @@ namespace ZooWorld.Systems
             builder.RegisterInstance(_predatorEatSettings);
             builder.RegisterInstance(_uiSettings);
             builder.RegisterInstance(_screenBoundsSettings);
+            builder.RegisterInstance(_movementStrategyCatalog);
+            builder.RegisterInstance(_nullMovementStrategy);
             builder.RegisterInstance(_uiView);
             builder.RegisterInstance(_worldRootView);
             builder.RegisterInstance(_cameraView);
 
             builder.Register<AnimalsModel>(Lifetime.Singleton)
                 .As<IAnimalsModel>();
-            
+
             builder.Register<AnimalViewsRegistry>(Lifetime.Singleton)
                 .As<IAnimalViewsRegistry>();
 
@@ -74,19 +84,10 @@ namespace ZooWorld.Systems
 
             builder.Register<ViewportBoundsService>(Lifetime.Singleton)
                 .As<IViewportBoundsService>();
-            
-            builder.Register<FrogJumpMovementStrategy>(Lifetime.Singleton)
-                .AsSelf();
 
-            builder.Register<SnakeLinearMovementStrategy>(Lifetime.Singleton)
-                .AsSelf();
-
-            builder.Register<NullAnimalMovementStrategy>(Lifetime.Singleton)
-                .AsSelf();
-
-            builder.Register<AnimalMovementStrategyResolver>(Lifetime.Singleton)
+            builder.Register<CatalogAnimalMovementStrategyResolver>(Lifetime.Singleton)
                 .As<IAnimalMovementStrategyResolver>();
-            
+
             builder.Register<SpawnSystem>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IAsyncInitializable>()
@@ -111,7 +112,7 @@ namespace ZooWorld.Systems
                 .AsSelf()
                 .As<IAsyncInitializable>()
                 .As<IAsyncReleasable>();
-            
+
             builder.Register<UISystem>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IAsyncInitializable>()

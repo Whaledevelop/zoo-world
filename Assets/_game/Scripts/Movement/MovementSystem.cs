@@ -1,8 +1,10 @@
-﻿using System.Threading;
+﻿﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using ZooWorld.Movement.Strategies;
 using ZooWorld.Models;
+using ZooWorld.Services;
+using ZooWorld.Settings;
 using ZooWorld.Views;
 using Whaledevelop;
 using Whaledevelop.Systems;
@@ -14,15 +16,21 @@ namespace ZooWorld.Systems
         private readonly IAnimalsModel _animalsModel;
         private readonly IAnimalViewsRegistry _viewsRegistry;
         private readonly IAnimalMovementStrategyResolver _strategyResolver;
+        private readonly IViewportBoundsService _viewportBoundsService;
+        private readonly ScreenBoundsSettings _screenBoundsSettings;
 
         public MovementSystem(
             IAnimalsModel animalsModel,
             IAnimalViewsRegistry viewsRegistry,
-            IAnimalMovementStrategyResolver strategyResolver)
+            IAnimalMovementStrategyResolver strategyResolver,
+            IViewportBoundsService viewportBoundsService,
+            ScreenBoundsSettings screenBoundsSettings)
         {
             _animalsModel = animalsModel;
             _viewsRegistry = viewsRegistry;
             _strategyResolver = strategyResolver;
+            _viewportBoundsService = viewportBoundsService;
+            _screenBoundsSettings = screenBoundsSettings;
         }
 
         protected override UniTask OnInitializeAsync(CancellationToken cancellationToken)
@@ -43,12 +51,15 @@ namespace ZooWorld.Systems
 
         private void UpdateAnimals()
         {
+            var context = new AnimalMovementContext(_viewportBoundsService, _screenBoundsSettings, Time.time);
+
             foreach (var animal in _animalsModel.Animals)
             {
+                var strategy = _strategyResolver.Resolve(animal);
+
                 if (!animal.IsAlive.CurrentValue)
                 {
-                    var cleanupStrategy = _strategyResolver.Resolve(animal);
-                    cleanupStrategy.Cleanup(animal.Id);
+                    strategy.Cleanup(animal.Id);
 
                     continue;
                 }
@@ -59,8 +70,7 @@ namespace ZooWorld.Systems
                     continue;
                 }
 
-                var strategy = _strategyResolver.Resolve(animal);
-                strategy.Tick(animal, rigidbody, Time.time);
+                strategy.Tick(animal, rigidbody, context);
             }
         }
     }
