@@ -5,8 +5,8 @@ namespace ZooWorld.Views
     public sealed class ZooWorldRootView : MonoBehaviour
     {
         [SerializeField]
-        private Transform _root;
+        private Transform _animalsSpawnRoot;
 
-        public Transform Root => _root;
+        public Transform AnimalsSpawnRoot => _animalsSpawnRoot;
     }
 }

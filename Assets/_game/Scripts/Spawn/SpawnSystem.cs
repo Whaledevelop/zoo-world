@@ -67,7 +67,7 @@ namespace ZooWorld.Systems
             var definition = _animalSettingsTable.Animals[Random.Range(0, _animalSettingsTable.Animals.Count)];
             var spawnPosition = GetRandomPosition(_zooWorldSettings.WorldBounds);
             var model = new AnimalModel(++_nextId, definition, spawnPosition);
-            var view = _animalViewsPool.Get(definition, _worldRootView.Root, spawnPosition, Quaternion.identity);
+            var view = _animalViewsPool.Get(definition, _worldRootView.AnimalsSpawnRoot, spawnPosition, Quaternion.identity);
 
             _animalsModel.AddAnimal(model);
             view.Initialize(model, _animalsModel, _viewsRegistry);
