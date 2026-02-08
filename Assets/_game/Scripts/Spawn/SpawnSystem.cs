@@ -1,7 +1,8 @@
-﻿﻿using System.Threading;
+﻿﻿﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using ZooWorld.Models;
+using ZooWorld.Obstacles;
 using ZooWorld.Settings;
 using ZooWorld.Views;
 using Whaledevelop;
@@ -18,6 +19,8 @@ namespace ZooWorld.Systems
         private readonly ZooWorldRootView _worldRootView;
         private readonly PoolingSettings _poolingSettings;
         private readonly IAnimalViewsPool _animalViewsPool;
+        private readonly IObstacleQueryService _obstacleQueryService;
+        private readonly ObstacleSettings _obstacleSettings;
         private int _nextId;
 
         public SpawnSystem(
@@ -27,7 +30,9 @@ namespace ZooWorld.Systems
             IAnimalViewsRegistry viewsRegistry,
             ZooWorldRootView worldRootView,
             PoolingSettings poolingSettings,
-            IAnimalViewsPool animalViewsPool)
+            IAnimalViewsPool animalViewsPool,
+            IObstacleQueryService obstacleQueryService,
+            ObstacleSettings obstacleSettings)
         {
             _zooWorldSettings = zooWorldSettings;
             _animalSettingsTable = animalSettingsTable;
@@ -36,6 +41,8 @@ namespace ZooWorld.Systems
             _worldRootView = worldRootView;
             _poolingSettings = poolingSettings;
             _animalViewsPool = animalViewsPool;
+            _obstacleQueryService = obstacleQueryService;
+            _obstacleSettings = obstacleSettings;
         }
 
         protected override UniTask OnInitializeAsync(CancellationToken cancellationToken)
@@ -65,12 +72,40 @@ namespace ZooWorld.Systems
             }
 
             var definition = _animalSettingsTable.Animals[Random.Range(0, _animalSettingsTable.Animals.Count)];
-            var spawnPosition = GetRandomPosition(_zooWorldSettings.WorldBounds);
-            var model = new AnimalModel(++_nextId, definition, spawnPosition);
-            var view = _animalViewsPool.Get(definition, _worldRootView.AnimalsSpawnRoot, spawnPosition, Quaternion.identity);
+            var spawnPosition = GetSpawnPosition(_zooWorldSettings.WorldBounds);
+
+            if (spawnPosition == null)
+            {
+
+                return;
+            }
+
+            var model = new AnimalModel(++_nextId, definition, spawnPosition.Value);
+            var view = _animalViewsPool.Get(definition, _worldRootView.AnimalsSpawnRoot, spawnPosition.Value, Quaternion.identity);
 
             _animalsModel.AddAnimal(model);
             view.Initialize(model, _animalsModel, _viewsRegistry);
+        }
+
+        private Vector3? GetSpawnPosition(Bounds bounds)
+        {
+            if (!_obstacleSettings.UseObstacleChecks)
+            {
+
+                return GetRandomPosition(bounds);
+            }
+
+            if (!_obstacleQueryService.TryFindFreePosition(
+                bounds,
+                _obstacleSettings.SpawnCheckRadius,
+                _obstacleSettings.MaxSpawnAttempts,
+                out var spawnPosition))
+            {
+
+                return null;
+            }
+
+            return spawnPosition;
         }
 
         private Vector3 GetRandomPosition(Bounds bounds)
@@ -78,7 +113,6 @@ namespace ZooWorld.Systems
             var xPosition = Random.Range(bounds.min.x, bounds.max.x);
             var zPosition = Random.Range(bounds.min.z, bounds.max.z);
 
-            
             return new Vector3(xPosition, bounds.center.y, zPosition);
         }
 

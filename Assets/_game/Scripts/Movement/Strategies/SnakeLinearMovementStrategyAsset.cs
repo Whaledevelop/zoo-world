@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using ZooWorld.Models;
 using ZooWorld.Settings;
@@ -18,17 +18,24 @@ namespace ZooWorld.Movement.Strategies
 
             if (!_directionById.TryGetValue(animal.Id, out var direction))
             {
-                direction = GetRandomDirection();
+                if (!TryGetInitialDirection(rigidbody.position, settings.Speed, context, out direction))
+                {
+
+                    return;
+                }
+
                 _directionById[animal.Id] = direction;
                 _turnTimeById[animal.Id] = time + settings.TurnInterval;
             }
 
             if (_turnTimeById.TryGetValue(animal.Id, out var nextTurnTime) && time >= nextTurnTime)
             {
-                direction = Quaternion.Euler(0f, Random.Range(-settings.TurnAngleRange, settings.TurnAngleRange), 0f) * direction;
-                direction = direction.normalized;
-                _directionById[animal.Id] = direction;
-                _turnTimeById[animal.Id] = time + settings.TurnInterval;
+                if (TryGetTurnDirection(rigidbody.position, direction, settings, context, out var turnDirection))
+                {
+                    direction = turnDirection;
+                    _directionById[animal.Id] = direction;
+                    _turnTimeById[animal.Id] = time + settings.TurnInterval;
+                }
             }
 
             direction = GetReturnSteerDirection(rigidbody.position, direction, context);
@@ -47,11 +54,93 @@ namespace ZooWorld.Movement.Strategies
             _turnTimeById.Remove(animalId);
         }
 
+        private bool TryGetInitialDirection(
+            Vector3 position,
+            float speed,
+            in AnimalMovementContext context,
+            out Vector3 direction)
+        {
+            var obstacleSettings = context.ObstacleSettings;
+
+            for (var attempt = 0; attempt < obstacleSettings.MaxDirectionAttempts; attempt++)
+            {
+                var candidateDirection = GetRandomDirection();
+
+                if (!obstacleSettings.UseObstacleChecks)
+                {
+                    direction = candidateDirection;
+
+                    return true;
+                }
+
+                if (IsDirectionBlocked(position, candidateDirection, speed, context))
+                {
+                    continue;
+                }
+
+                direction = candidateDirection;
+
+                return true;
+            }
+
+            direction = Vector3.zero;
+
+            return false;
+        }
+
+        private bool TryGetTurnDirection(
+            Vector3 position,
+            Vector3 currentDirection,
+            SnakeMovementSettings settings,
+            in AnimalMovementContext context,
+            out Vector3 direction)
+        {
+            var obstacleSettings = context.ObstacleSettings;
+
+            for (var attempt = 0; attempt < obstacleSettings.MaxDirectionAttempts; attempt++)
+            {
+                var candidateDirection = Quaternion.Euler(0f, Random.Range(-settings.TurnAngleRange, settings.TurnAngleRange), 0f) * currentDirection;
+                candidateDirection = candidateDirection.normalized;
+
+                if (!obstacleSettings.UseObstacleChecks)
+                {
+                    direction = candidateDirection;
+
+                    return true;
+                }
+
+                if (IsDirectionBlocked(position, candidateDirection, settings.Speed, context))
+                {
+                    continue;
+                }
+
+                direction = candidateDirection;
+
+                return true;
+            }
+
+            direction = currentDirection;
+
+            return false;
+        }
+
         private Vector3 GetRandomDirection()
         {
             var randomDirection = Random.insideUnitCircle.normalized;
 
             return new Vector3(randomDirection.x, 0f, randomDirection.y);
+        }
+
+        private bool IsDirectionBlocked(
+            Vector3 position,
+            Vector3 direction,
+            float speed,
+            in AnimalMovementContext context)
+        {
+            var obstacleSettings = context.ObstacleSettings;
+            var predictedPosition = position + direction * speed * obstacleSettings.SnakeLookAheadSeconds;
+
+            return context.ObstacleQueryService.IsBlocked(predictedPosition, obstacleSettings.MovementCheckRadius);
         }
 
         private Vector3 GetReturnSteerDirection(Vector3 position, Vector3 direction, in AnimalMovementContext context)

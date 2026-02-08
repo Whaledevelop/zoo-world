@@ -1,8 +1,9 @@
-﻿﻿using System.Threading;
+﻿﻿﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using ZooWorld.Movement.Strategies;
 using ZooWorld.Models;
+using ZooWorld.Obstacles;
 using ZooWorld.Services;
 using ZooWorld.Settings;
 using ZooWorld.Views;
@@ -18,19 +19,25 @@ namespace ZooWorld.Systems
         private readonly IAnimalMovementStrategyResolver _strategyResolver;
         private readonly IViewportBoundsService _viewportBoundsService;
         private readonly ScreenBoundsSettings _screenBoundsSettings;
+        private readonly IObstacleQueryService _obstacleQueryService;
+        private readonly ObstacleSettings _obstacleSettings;
 
         public MovementSystem(
             IAnimalsModel animalsModel,
             IAnimalViewsRegistry viewsRegistry,
             IAnimalMovementStrategyResolver strategyResolver,
             IViewportBoundsService viewportBoundsService,
-            ScreenBoundsSettings screenBoundsSettings)
+            ScreenBoundsSettings screenBoundsSettings,
+            IObstacleQueryService obstacleQueryService,
+            ObstacleSettings obstacleSettings)
         {
             _animalsModel = animalsModel;
             _viewsRegistry = viewsRegistry;
             _strategyResolver = strategyResolver;
             _viewportBoundsService = viewportBoundsService;
             _screenBoundsSettings = screenBoundsSettings;
+            _obstacleQueryService = obstacleQueryService;
+            _obstacleSettings = obstacleSettings;
         }
 
         protected override UniTask OnInitializeAsync(CancellationToken cancellationToken)
@@ -51,7 +58,12 @@ namespace ZooWorld.Systems
 
         private void UpdateAnimals()
         {
-            var context = new AnimalMovementContext(_viewportBoundsService, _screenBoundsSettings, Time.time);
+            var context = new AnimalMovementContext(
+                _viewportBoundsService,
+                _screenBoundsSettings,
+                _obstacleQueryService,
+                _obstacleSettings,
+                Time.time);
 
             foreach (var animal in _animalsModel.Animals)
             {

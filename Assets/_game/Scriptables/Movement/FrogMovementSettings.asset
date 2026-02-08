@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc95ba9977ba4595833a72670cda322a, type: 3}
   m_Name: FrogMovementSettings
   m_EditorClassIdentifier: Assembly-CSharp::ZooWorld.Settings.FrogMovementSettings
-  <JumpDistance>k__BackingField: 2.5
+  <JumpDistance>k__BackingField: 2
   <JumpInterval>k__BackingField: 2
   <JumpDuration>k__BackingField: 0.3
-  <JumpArcHeight>k__BackingField: 0.7
+  <JumpArcHeight>k__BackingField: 2

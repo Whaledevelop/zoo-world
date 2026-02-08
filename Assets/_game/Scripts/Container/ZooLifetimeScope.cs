@@ -1,9 +1,10 @@
-﻿using Sirenix.OdinInspector;
+﻿﻿using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
 using Whaledevelop.VContainer;
 using ZooWorld.Models;
 using ZooWorld.Movement.Strategies;
+using ZooWorld.Obstacles;
 using ZooWorld.Services;
 using ZooWorld.Settings;
 using ZooWorld.Views;
@@ -51,6 +52,10 @@ namespace ZooWorld.Systems
         [SerializeField]
         [BoxGroup("Settings")]
         private PoolingSettings _poolingSettings;
+
+        [SerializeField]
+        [BoxGroup("Settings")]
+        private ObstacleSettings _obstacleSettings;
         
         protected override void Configure(IContainerBuilder builder)
         {
@@ -63,6 +68,7 @@ namespace ZooWorld.Systems
             builder.RegisterInstance(_screenBoundsSettings);
             builder.RegisterInstance(_movementStrategyCatalog);
             builder.RegisterInstance(_poolingSettings);
+            builder.RegisterInstance(_obstacleSettings);
             builder.RegisterInstance(_uiView);
             builder.RegisterInstance(_worldRootView);
             builder.RegisterInstance(_cameraView);
@@ -87,6 +93,9 @@ namespace ZooWorld.Systems
 
             builder.Register<ViewportBoundsService>(Lifetime.Singleton)
                 .As<IViewportBoundsService>();
+
+            builder.Register<ObstacleQueryService>(Lifetime.Singleton)
+                .As<IObstacleQueryService>();
 
             builder.Register<CatalogAnimalMovementStrategyResolver>(Lifetime.Singleton)
                 .As<IAnimalMovementStrategyResolver>();
