@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: SnakeMovementSettings
   m_EditorClassIdentifier: Assembly-CSharp::ZooWorld.Settings.SnakeMovementSettings
   <Speed>k__BackingField: 2
-  <TurnInterval>k__BackingField: 1
-  <TurnAngleRange>k__BackingField: 45
+  <TurnInterval>k__BackingField: 1.5
+  <TurnAngleRange>k__BackingField: 60
+  <TurnSpeedDegPerSec>k__BackingField: 180
+  <SnapIfVeryClose>k__BackingField: 1
+  <SnapAngleThresholdDeg>k__BackingField: 2

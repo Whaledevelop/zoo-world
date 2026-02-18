@@ -17,9 +17,9 @@ MonoBehaviour:
   <JumpDuration>k__BackingField: 0.3
   <JumpArcHeight>k__BackingField: 2
   <LandingFreezeSeconds>k__BackingField: 0.35
-  <RotationDurationSeconds>k__BackingField: 0.15
-  <LandingLinearDamping>k__BackingField: 8
-  <LandingAngularDamping>k__BackingField: 20
+  <RotationDurationSeconds>k__BackingField: 0.5
+  <LandingLinearDamping>k__BackingField: 10
+  <LandingAngularDamping>k__BackingField: 30
   <FreezeXZOnLanding>k__BackingField: 1
   <GroundStickVelocityEpsilon>k__BackingField: 0.15
   <GroundRayDistance>k__BackingField: 0.25
