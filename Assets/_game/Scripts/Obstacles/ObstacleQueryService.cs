@@ -19,6 +19,20 @@ namespace ZooWorld.Obstacles
             return Physics.CheckSphere(position, radius, mask, QueryTriggerInteraction.Ignore);
         }
 
+        public bool IsPathBlocked(Vector3 position, Vector3 direction, float distance, float radius)
+        {
+            var mask = _obstacleSettings.ObstaclesMask;
+
+            return Physics.SphereCast(
+                position,
+                radius,
+                direction,
+                out _,
+                distance,
+                mask,
+                QueryTriggerInteraction.Ignore);
+        }
+
         public bool TryFindFreePosition(in Bounds bounds, float radius, int maxAttempts, out Vector3 position)
         {
             for (var attempt = 0; attempt < maxAttempts; attempt++)

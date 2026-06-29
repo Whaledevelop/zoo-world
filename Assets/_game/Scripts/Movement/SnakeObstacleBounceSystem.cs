@@ -70,7 +70,7 @@ namespace ZooWorld.Systems
             }
 
             var collisionNormal = collisionEvent.Normal;
-            var bounceDirection = new Vector3(-collisionNormal.x, 0f, -collisionNormal.z);
+            var bounceDirection = new Vector3(collisionNormal.x, 0f, collisionNormal.z);
 
             if (bounceDirection.sqrMagnitude <= 0.0001f)
             {
